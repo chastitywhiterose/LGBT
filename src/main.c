@@ -28,6 +28,7 @@ int seconds,minutes,hours; /*to keep track of time*/
 int sdl_time,sdl_time1;
 
 #include "sdl_lgbt.h"
+#include "sdl_lgbt_format.h"
 
 
 int main(int argc, char **argv)
@@ -42,7 +43,9 @@ int main(int argc, char **argv)
  font_8=chaste_font_load("./font/FreeBASIC Font 8.bmp");
  main_font=font_8;
 
- lgbt_demo();
+ /*lgbt_demo();*/
+
+ lgbt_load_bmp("./font/FreeBASIC Font 8.bmp");
 
  SDL_DestroyRenderer(renderer);
  SDL_DestroyWindow(window);
