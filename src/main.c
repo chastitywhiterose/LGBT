@@ -45,7 +45,10 @@ int main(int argc, char **argv)
 
  /*lgbt_demo();*/
 
- lgbt_load_bmp("./font/FreeBASIC Font 8.bmp");
+ main_lgbt=lgbt_load_bmp("./font/FreeBASIC Font 8.bmp");
+
+ /*lgbt_save_pbm("./font/FreeBASIC Font 8.pbm");
+ lgbt_save("./font/FreeBASIC Font 8.lgbt");*/
 
  SDL_DestroyRenderer(renderer);
  SDL_DestroyWindow(window);
