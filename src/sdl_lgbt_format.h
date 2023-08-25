@@ -11,6 +11,8 @@ struct lgbt
 
 struct lgbt main_lgbt;
 
+int main_color=0xFFFFFF; /*global color for all drawn text*/
+
 
 /*loads data into an lgbt image by first loading a bitmap file and then copying all the data over*/
 struct lgbt lgbt_load_bmp(const char *s)
@@ -229,4 +231,204 @@ void lgbt_save(const char* filename)
  fclose(fp);
  printf("Saved to file: %s\n",filename);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+This uses direct pixel access of the source lgbt font to draw only when the source pixel is not black.
+*/
+void lgbt_draw_text(const char *s,int cx,int cy,int scale)
+{
+ int x,y,i,c,cx_start=cx;
+ int sx,sy,sx2,sy2,dx,dy; /*x,y coordinates for both source and destination*/
+ Uint32 pixel,r,g,b; /*pixel that will be read from*/
+ SDL_Rect rect_source,rect_dest;
+
+ i=0;
+ while(s[i]!=0)
+ {
+  c=s[i];
+  if(c=='\n'){ cx=cx_start; cy+=main_font.char_height*scale;}
+  else
+  {
+   x=(c-' ')*main_font.char_width;
+   y=0*main_font.char_height;
+
+   /*set up source rectangle where this character will be copied from*/
+   rect_source.x=x;
+   rect_source.y=y;
+   rect_source.w=main_font.char_width;
+   rect_source.h=main_font.char_height;
+ 
+   /*Now for the ultra complicated stuff that only Chastity can read and understand!*/
+   sx2=rect_source.x+rect_source.w;
+   sy2=rect_source.y+rect_source.h;
+   
+   dx=cx;
+   dy=cy;
+   
+   sy=rect_source.y;
+   while(sy<sy2)
+   {
+    dx=cx;
+    sx=rect_source.x;
+    while(sx<sx2)
+    {
+     pixel=main_lgbt.pixels[sx+sy*main_lgbt.width];
+     pixel&=0xFFFFFF;
+     
+     if(pixel!=0) /*only if source pixel is nonzero(not black) draw square to destination*/
+     {
+      rect_dest.x=dx;
+      rect_dest.y=dy;
+      rect_dest.w=scale;
+      rect_dest.h=scale;
+      
+      pixel=main_color;
+      
+      r=(pixel&0xFF0000)>>16;
+      g=(pixel&0x00FF00)>>8;
+      b=(pixel&0x0000FF);
+      
+      SDL_SetRenderDrawColor(renderer,r,g,b,255);
+      SDL_RenderFillRect(renderer,&rect_dest);
+      
+     }
+     
+     sx++;
+     dx+=scale;
+    }
+    sy++;
+    dy+=scale;
+   }
+   /*End of really complicated section*/
+   cx+=main_font.char_width*scale;
+  }
+  i++;
+ }
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+the demo which involves drawing text but does not use the SDL specific functions!
+this is important because it means having a way to draw text that does not depend on which media library is being used!
+*/
+
+void lgbt_demo()
+{
+ int scale=8;
+ main_font=font_8;
+ text_x=width*1/6;
+
+ delay=1000/fps;
+
+ loop=1;
+ while(loop)
+ {
+  sdl_time = SDL_GetTicks();
+  sdl_time1 = sdl_time+delay;
+
+  SDL_SetRenderDrawColor(renderer,0,0,0,255);
+  SDL_RenderClear(renderer);
+
+  main_color=0x00FFFF;
+  scale=16;
+  lgbt_draw_text("LGBT",text_x,main_font.char_height*1*scale,scale);
+
+  main_color=0xFFFF00;
+  scale=8;
+  lgbt_draw_text("Light\nGraphics\nBinary\nText",text_x,main_font.char_height*5*scale,scale);
+
+  main_color=0xFF00FF;
+  lgbt_draw_text("This text was drawn with a program written by Chastity White Rose\nSimilar methods were used in her games:\nChaste Tris, Chaste Puyo, and Chaste Panel",16,main_font.char_height*10*scale,2);
+ 
+  SDL_RenderPresent(renderer);
+
+  /*time loop used to slow the game down so users can see it*/
+  while(sdl_time<sdl_time1)
+  {
+   sdl_time=SDL_GetTicks();
+  }
+
+  /*test for events and only process if they exist*/
+  while(SDL_PollEvent(&e))
+  {
+   if(e.type == SDL_QUIT){loop=0;}
+   if(e.type == SDL_KEYUP)
+   {
+    if(e.key.keysym.sym==SDLK_ESCAPE){loop=0;}
+   }
+  }
+  
+ }
+}
+
+
+
+
 

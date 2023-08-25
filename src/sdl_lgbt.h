@@ -163,10 +163,10 @@ int text_x; /*the x position of where text will go*/
 
 
 /*
- this function is now the official demo function for the LGBT library
- it shows text based on the loaded main font
+ this function is a demo function for the chaste font library
+ it shows text based on the loaded main font. this is a precursor for the lgbt font library I am making
 */
-void lgbt_demo()
+void chast_font_demo()
 {
  int scale=8;
  main_font=font_8;
