@@ -21,15 +21,12 @@ SDL_Rect rect;
 
 int rect_color;
 
-
 int frame=0,lastframe=0,fps=60,delay,framelimit=1; /*only used for animation demos*/
 time_t time0,time1;
 int seconds,minutes,hours; /*to keep track of time*/
 int sdl_time,sdl_time1;
 
-#include "sdl_lgbt.h"
 #include "sdl_lgbt_format.h"
-
 
 int main(int argc, char **argv)
 {
@@ -40,14 +37,6 @@ int main(int argc, char **argv)
  renderer = SDL_CreateRenderer(window,-1,0);
  if(renderer==NULL){printf( "Renderer could not be created! SDL_Error: %s\n", SDL_GetError() );return -1;}
  
- font_8=chaste_font_load("./font/FreeBASIC Font 8.bmp");
- main_font=font_8;
-
- /*chast_font_demo*/
-
- /*main_lgbt=lgbt_load_bmp("./font/FreeBASIC Font 8.bmp");*/
- /*main_lgbt=lgbt_load_pbm("./font/FreeBASIC Font 8.pbm");*/
-
  main_lgbt=lgbt_load("./font/FreeBASIC Font 8.lgbt");
 
 
@@ -59,8 +48,6 @@ int main(int argc, char **argv)
  SDL_DestroyRenderer(renderer);
  SDL_DestroyWindow(window);
  SDL_Quit();
-
- chaste_font_free(font_8);
 
  return 0;
 }

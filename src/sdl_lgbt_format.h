@@ -27,9 +27,6 @@ struct lgbt lgbt_load_bmp(const char *s)
 
  /*convert to BGRA32 pixel format for easy handling for later functions*/
  temp_surface1=SDL_ConvertSurfaceFormat(temp_surface, SDL_PIXELFORMAT_BGRA32, 0);
- SDL_FreeSurface(temp_surface);
-
-
 
  /*set the initial data for the lgbt structure copied from the SDL_Surface*/
  new_lgbt.width=temp_surface1->w;
@@ -44,7 +41,7 @@ struct lgbt lgbt_load_bmp(const char *s)
  {
   printf("Allocated the pixels for lgbt image.\n");
 
-  ssp=(Uint32*)main_font.surface->pixels;
+  ssp=(Uint32*)temp_surface1->pixels;
 
   /*copy the pixels from the surface to this structure*/
   y=0;
@@ -62,6 +59,7 @@ struct lgbt lgbt_load_bmp(const char *s)
   
  }
 
+ SDL_FreeSurface(temp_surface);
  SDL_FreeSurface(temp_surface1);
 
  return new_lgbt;
@@ -457,22 +455,24 @@ void lgbt_draw_text(const char *s,int cx,int cy,int scale)
  int sx,sy,sx2,sy2,dx,dy; /*x,y coordinates for both source and destination*/
  Uint32 pixel,r,g,b; /*pixel that will be read from*/
  SDL_Rect rect_source,rect_dest;
+ int char_width=main_lgbt.width/95; /*there are 95 characters in my font files*/
+ int char_height=main_lgbt.height;
 
  i=0;
  while(s[i]!=0)
  {
   c=s[i];
-  if(c=='\n'){ cx=cx_start; cy+=main_font.char_height*scale;}
+  if(c=='\n'){ cx=cx_start; cy+=char_height*scale;}
   else
   {
-   x=(c-' ')*main_font.char_width;
-   y=0*main_font.char_height;
+   x=(c-' ')*char_width;
+   y=0*char_height;
 
    /*set up source rectangle where this character will be copied from*/
    rect_source.x=x;
    rect_source.y=y;
-   rect_source.w=main_font.char_width;
-   rect_source.h=main_font.char_height;
+   rect_source.w=char_width;
+   rect_source.h=char_height;
  
    /*Now for the ultra complicated stuff that only Chastity can read and understand!*/
    sx2=rect_source.x+rect_source.w;
@@ -516,7 +516,7 @@ void lgbt_draw_text(const char *s,int cx,int cy,int scale)
     dy+=scale;
    }
    /*End of really complicated section*/
-   cx+=main_font.char_width*scale;
+   cx+=char_width*scale;
   }
   i++;
  }
@@ -565,8 +565,7 @@ this is important because it means having a way to draw text that does not depen
 void lgbt_demo()
 {
  int scale=8;
- main_font=font_8;
- text_x=width*1/6;
+ int text_x=width*1/6;
 
  delay=1000/fps;
 
@@ -581,14 +580,14 @@ void lgbt_demo()
 
   main_color=0x00FFFF;
   scale=16;
-  lgbt_draw_text("LGBT",text_x,main_font.char_height*1*scale,scale);
+  lgbt_draw_text("LGBT",text_x,main_lgbt.height*1*scale,scale);
 
   main_color=0xFFFF00;
   scale=8;
-  lgbt_draw_text("Light\nGraphics\nBinary\nText",text_x,main_font.char_height*5*scale,scale);
+  lgbt_draw_text("Light\nGraphics\nBinary\nText",text_x,main_lgbt.height*5*scale,scale);
 
   main_color=0xFF00FF;
-  lgbt_draw_text("This text was drawn with a program written by Chastity White Rose\nSimilar methods were used in her games:\nChaste Tris, Chaste Puyo, and Chaste Panel",16,main_font.char_height*10*scale,2);
+  lgbt_draw_text("This text was drawn with a program written by Chastity White Rose\nSimilar methods were used in her games:\nChaste Tris, Chaste Puyo, and Chaste Panel",16,main_lgbt.height*10*scale,2);
  
   SDL_RenderPresent(renderer);
 
