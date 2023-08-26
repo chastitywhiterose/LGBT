@@ -162,7 +162,22 @@ void fputint(unsigned long int i,FILE *fp,int count)
 }
 
 
+/*The reverse process gets an integer of the specified number of bytes in little endian format.*/
+unsigned long int fgetint(FILE *fp,int count)
+{
+ unsigned long int i=0,c,x;
+ 
+ x=0;
+ while(count>0)
+ {
+  c=fgetc(fp);
+  i+=c<<=x;
+  x+=8;
+  count--;
+ }
 
+ return i;
+}
 
 
 
@@ -238,7 +253,37 @@ void lgbt_save(const char* filename)
 
 
 
+/*loads my lgbt format*/
+struct lgbt lgbt_load(const char *s)
+{
+ int x,y;
+ struct lgbt new_lgbt;
+ FILE* fp;
+ fp=fopen(s,"rb");
+ printf("This function loads a LGBT file into a structure.\n");
+ if(fp==NULL)
+ {
+  printf("Failed to read file \"%s\": Doesn't exist.\n",s);
+  new_lgbt.pixels=NULL; return new_lgbt;}
 
+ x=fgetint(fp,4);
+ /*printf("id=%X\n",x);*/
+ if(x!=0x5442474C){printf("Error not an LGBT file!");}
+ new_lgbt.width=fgetint(fp,4);
+ new_lgbt.height=fgetint(fp,4);
+ new_lgbt.bpp=fgetint(fp,4);
+
+ printf("new_lgbt width=%d height=%d bpp=%d\n",new_lgbt.width,new_lgbt.height,new_lgbt.bpp);
+
+ new_lgbt.pixels=(uint32_t*)malloc((new_lgbt.width*new_lgbt.height)*sizeof(*new_lgbt.pixels));
+ if(new_lgbt.pixels==NULL){printf("Error: malloc failed,\n");}
+ else
+ {
+  printf("Allocated the pixels for lgbt image.\n");
+ }
+
+ return new_lgbt;
+}
 
 
 
