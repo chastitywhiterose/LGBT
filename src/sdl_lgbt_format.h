@@ -254,16 +254,16 @@ void lgbt_save(const char* filename)
 
 
 /*loads my lgbt format*/
-struct lgbt lgbt_load(const char *s)
+struct lgbt lgbt_load(const char *filename)
 {
- int x,y;
+ int x,y,pixel,x2,c,bitcount,bits;
  struct lgbt new_lgbt;
  FILE* fp;
- fp=fopen(s,"rb");
+ fp=fopen(filename,"rb");
  printf("This function loads a LGBT file into a structure.\n");
  if(fp==NULL)
  {
-  printf("Failed to read file \"%s\": Doesn't exist.\n",s);
+  printf("Failed to read file \"%s\": Doesn't exist.\n",filename);
   new_lgbt.pixels=NULL; return new_lgbt;}
 
  x=fgetint(fp,4);
@@ -280,8 +280,55 @@ struct lgbt lgbt_load(const char *s)
  else
  {
   printf("Allocated the pixels for lgbt image.\n");
+
+
+ y=0;
+ while(y<new_lgbt.height)
+ {
+
+
+  bitcount=0;
+  x=0;
+  while(x<new_lgbt.width)
+  {
+   if(bitcount%8==0)
+   {
+    c=fgetc(fp);
+    if(feof(fp))
+    {
+     printf("End of file reached.\n");
+    }
+      
+   }
+   
+   bits=c >> (8-new_lgbt.bpp);
+   c<<=new_lgbt.bpp;
+   c&=255;
+   bitcount+=new_lgbt.bpp;
+
+   /*convert gray into a 24 bit RGB equivalent.*/
+   pixel=0;
+   x2=0;
+   while(x2<24)
+   {
+    pixel<<=new_lgbt.bpp;
+    pixel|=bits;
+    x2+=new_lgbt.bpp;
+   }
+
+    new_lgbt.pixels[x+y*new_lgbt.width]=pixel;
+    x++;
+   }
+   y++;
+
+
+  }
+
+  
  }
 
+ fclose(fp);
+ printf("Loaded from file: %s\n",filename);
  return new_lgbt;
 }
 
