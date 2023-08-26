@@ -27,6 +27,7 @@ int seconds,minutes,hours; /*to keep track of time*/
 int sdl_time,sdl_time1;
 
 #include "sdl_lgbt_format.h"
+#include "lgbt_palette.h"
 
 int main(int argc, char **argv)
 {
@@ -39,8 +40,19 @@ int main(int argc, char **argv)
  
  main_lgbt=lgbt_load("./font/FreeBASIC Font 8.lgbt");
 
+ gay_palette=make_gay(40);
+ trans_palette=make_trans(40);
+ pastel_palette=make_pastel(80);
 
- lgbt_demo();
+ main_palette=pastel_palette;
+
+
+
+ /*main_palette_view();*/
+
+ /*return 0;*/
+
+ lgbt_demo_pal();
 
  /*lgbt_save_pbm("./font/FreeBASIC Font 8.pbm");
  lgbt_save("./font/FreeBASIC Font 8.lgbt");*/
