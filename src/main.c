@@ -46,8 +46,10 @@ int main(int argc, char **argv)
  /*chast_font_demo*/
 
  /*main_lgbt=lgbt_load_bmp("./font/FreeBASIC Font 8.bmp");*/
+ /*main_lgbt=lgbt_load_pbm("./font/FreeBASIC Font 8.pbm");*/
 
  main_lgbt=lgbt_load("./font/FreeBASIC Font 8.lgbt");
+
 
  lgbt_demo();
 

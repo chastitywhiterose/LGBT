@@ -145,6 +145,96 @@ void lgbt_save_pbm(const char* filename)
 
 
 
+/*Loads from PBM(Portable Bitmap Format)*/
+struct lgbt lgbt_load_pbm(const char *filename)
+{
+ char s[0x10];
+ int x,y,pixel,x2,c,bitcount,bits;
+ struct lgbt new_lgbt;
+ FILE* fp;
+ fp=fopen(filename,"rb");
+ printf("This function loads a LGBT file into a structure.\n");
+ if(fp==NULL)
+ {
+  printf("Failed to read file \"%s\": Doesn't exist.\n",filename);
+  new_lgbt.pixels=NULL; return new_lgbt;}
+
+ fscanf(fp,"%s",s);
+ if(!strcmp(s,"P4")){printf("Correct \"%s\" header!\n",s);}
+ else{printf("\"%s\" is not the correct header!\n",s);}
+ fscanf(fp,"%u",&new_lgbt.width);
+ fscanf(fp,"%u",&new_lgbt.height);
+ fgetc(fp);
+ new_lgbt.bpp=1;
+
+ printf("new_lgbt width=%d height=%d bpp=%d\n",new_lgbt.width,new_lgbt.height,new_lgbt.bpp);
+
+ new_lgbt.pixels=(uint32_t*)malloc((new_lgbt.width*new_lgbt.height)*sizeof(*new_lgbt.pixels));
+ if(new_lgbt.pixels==NULL){printf("Error: malloc failed,\n");}
+ else
+ {
+  printf("Allocated the pixels for lgbt image.\n");
+
+
+ y=0;
+ while(y<new_lgbt.height)
+ {
+
+
+  bitcount=0;
+  x=0;
+  while(x<new_lgbt.width)
+  {
+   if(bitcount%8==0)
+   {
+    c=fgetc(fp);
+    if(feof(fp))
+    {
+     printf("End of file reached.\n");
+    }
+      
+   }
+   
+   bits=c >> (8-new_lgbt.bpp);
+   c<<=new_lgbt.bpp;
+   c&=255;
+   bitcount+=new_lgbt.bpp;
+
+   bits^=1;
+
+   /*convert gray into a 24 bit RGB equivalent.*/
+   pixel=0;
+   x2=0;
+   while(x2<24)
+   {
+    pixel<<=new_lgbt.bpp;
+    pixel|=bits;
+    x2+=new_lgbt.bpp;
+   }
+
+    new_lgbt.pixels[x+y*new_lgbt.width]=pixel;
+    x++;
+   }
+   y++;
+
+
+  }
+
+  
+ }
+
+ fclose(fp);
+ printf("Loaded from file: %s\n",filename);
+ return new_lgbt;
+}
+
+
+
+
+
+
+
+
 
 /*
 A quick dirty replacement for never needing to use fwrite to write my integers! However the catch is that it only works for little endian. For this reason I choose little endian as the format the binary integers will take in my own image formats I am creating. It writes integer i to file pointer fp using count bytes. Most PCs these days can't actually do more than 32 or 64 bits.
@@ -306,6 +396,8 @@ struct lgbt lgbt_load(const char *filename)
    c&=255;
    bitcount+=new_lgbt.bpp;
 
+   /*bits^=1;*/
+
    /*convert gray into a 24 bit RGB equivalent.*/
    pixel=0;
    x2=0;
@@ -320,7 +412,6 @@ struct lgbt lgbt_load(const char *filename)
     x++;
    }
    y++;
-
 
   }
 
