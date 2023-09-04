@@ -2,7 +2,6 @@
 To avoid corrupting my font library during development, I created this source file to make a set of functions entirely dedicated to my new file format.
 */
 
-
 struct lgbt
 {
  Uint32 width,height,bpp;
@@ -12,7 +11,6 @@ struct lgbt
 struct lgbt main_lgbt;
 
 int main_color=0xFFFFFF; /*global color for all drawn text*/
-
 
 /*loads data into an lgbt image by first loading a bitmap file and then copying all the data over*/
 struct lgbt lgbt_load_bmp(const char *s)
@@ -371,9 +369,9 @@ struct lgbt lgbt_load(const char *filename)
 
  fread(id_string,sizeof(*id_string),4,fp);
  if(strncmp(id_string,"LGBT",4)!=0){printf("Error not an LGBT file!\n");return new_lgbt;}
- new_lgbt.width=fgetint(fp,4);
- new_lgbt.height=fgetint(fp,4);
- new_lgbt.bpp=fgetint(fp,4);
+ fread(&new_lgbt.width,4,1,fp);
+ fread(&new_lgbt.height,4,1,fp);
+ fread(&new_lgbt.bpp,4,1,fp);
 
  printf("new_lgbt width=%d height=%d bpp=%d\n",new_lgbt.width,new_lgbt.height,new_lgbt.bpp);
 
@@ -383,42 +381,41 @@ struct lgbt lgbt_load(const char *filename)
  {
   printf("Allocated the pixels for lgbt image.\n");
 
-
- y=0;
- while(y<new_lgbt.height)
- {
-
-
-  bitcount=0;
-  x=0;
-  while(x<new_lgbt.width)
+  y=0;
+  while(y<new_lgbt.height)
   {
-   if(bitcount%8==0)
+
+
+   bitcount=0;
+   x=0;
+   while(x<new_lgbt.width)
    {
-    c=fgetc(fp);
-    if(feof(fp))
+    if(bitcount%8==0)
     {
-     printf("End of file reached.\n");
-    }
+     c=fgetc(fp);
+     if(feof(fp))
+     {
+      printf("End of file reached.\n");
+     }
       
-   }
+    }
    
-   bits=c >> (8-new_lgbt.bpp);
-   c<<=new_lgbt.bpp;
-   c&=255;
-   bitcount+=new_lgbt.bpp;
+    bits=c >> (8-new_lgbt.bpp);
+    c<<=new_lgbt.bpp;
+    c&=255;
+    bitcount+=new_lgbt.bpp;
 
    /*bits^=1;*/
 
-   /*convert gray into a 24 bit RGB equivalent.*/
-   pixel=0;
-   x2=0;
-   while(x2<24)
-   {
-    pixel<<=new_lgbt.bpp;
-    pixel|=bits;
-    x2+=new_lgbt.bpp;
-   }
+    /*convert gray into a 24 bit RGB equivalent.*/
+    pixel=0;
+    x2=0;
+    while(x2<24)
+    {
+     pixel<<=new_lgbt.bpp;
+     pixel|=bits;
+     x2+=new_lgbt.bpp;
+    }
 
     new_lgbt.pixels[x+y*new_lgbt.width]=pixel;
     x++;
@@ -426,7 +423,6 @@ struct lgbt lgbt_load(const char *filename)
    y++;
 
   }
-
   
  }
 
@@ -434,12 +430,6 @@ struct lgbt lgbt_load(const char *filename)
  printf("Loaded from file: %s\n",filename);
  return new_lgbt;
 }
-
-
-
-
-
-
 
 /*
 loads my lgbt format
