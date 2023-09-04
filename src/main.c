@@ -38,7 +38,11 @@ int main(int argc, char **argv)
  renderer = SDL_CreateRenderer(window,-1,0);
  if(renderer==NULL){printf( "Renderer could not be created! SDL_Error: %s\n", SDL_GetError() );return -1;}
  
+ /*main_lgbt=lgbt_load_bmp("./font/FreeBASIC Font 8.bmp");*/
+
+
  main_lgbt=lgbt_load("./font/FreeBASIC Font 8.lgbt");
+
 
  gay_palette=make_gay(40);
  trans_palette=make_trans(40);
@@ -52,10 +56,13 @@ int main(int argc, char **argv)
 
  /*return 0;*/
 
- lgbt_demo_pal();
+ lgbt_demo();
 
- /*lgbt_save_pbm("./font/FreeBASIC Font 8.pbm");
- lgbt_save("./font/FreeBASIC Font 8.lgbt");*/
+
+ /*lgbt_demo_pal();*/
+
+ /*lgbt_save_pbm("./font/FreeBASIC Font 8.pbm");*/
+ /*lgbt_save("./font/FreeBASIC Font 8.lgbt");*/
 
  SDL_DestroyRenderer(renderer);
  SDL_DestroyWindow(window);

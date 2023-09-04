@@ -277,8 +277,15 @@ Saves to my own format which is named LGBT.
 void lgbt_save(const char* filename)
 {
  uint32_t x,y,pixel,r,g,b,gray,bitcount,bits,bpp=1;
-
  FILE* fp;
+
+ if(main_lgbt.pixels==NULL)
+ {
+  printf("Error: Font is NULL!\n");
+  printf("Saving file cancelled!\n");
+  return;
+ }
+
  fp=fopen(filename,"wb+");
  if(fp==NULL){printf("Failed to create file \"%s\".\n",filename); return;}
  else{/*printf("File \"%s\" opened.\n",filename);*/}
@@ -341,8 +348,105 @@ void lgbt_save(const char* filename)
 
 
 
-/*loads my lgbt format*/
+/*
+A function to load my lgbt image format.
+
+This function uses fread to read the data from the file in a way that works best with standard library functions.
+*/
 struct lgbt lgbt_load(const char *filename)
+{
+ char id_string[16];
+ int x,y,pixel,x2,c,bitcount,bits;
+ FILE* fp;
+ struct lgbt new_lgbt;
+ new_lgbt.pixels=NULL; /*default to NULL for pixels before allocation*/
+
+ fp=fopen(filename,"rb");
+ printf("This function loads a LGBT file into a structure.\n");
+ if(fp==NULL)
+ {
+  printf("Failed to read file \"%s\": Doesn't exist.\n",filename);
+  return new_lgbt;
+ }
+
+ fread(id_string,sizeof(*id_string),4,fp);
+ if(strncmp(id_string,"LGBT",4)!=0){printf("Error not an LGBT file!\n");return new_lgbt;}
+ new_lgbt.width=fgetint(fp,4);
+ new_lgbt.height=fgetint(fp,4);
+ new_lgbt.bpp=fgetint(fp,4);
+
+ printf("new_lgbt width=%d height=%d bpp=%d\n",new_lgbt.width,new_lgbt.height,new_lgbt.bpp);
+
+ new_lgbt.pixels=(uint32_t*)malloc((new_lgbt.width*new_lgbt.height)*sizeof(*new_lgbt.pixels));
+ if(new_lgbt.pixels==NULL){printf("Error: malloc failed,\n");}
+ else
+ {
+  printf("Allocated the pixels for lgbt image.\n");
+
+
+ y=0;
+ while(y<new_lgbt.height)
+ {
+
+
+  bitcount=0;
+  x=0;
+  while(x<new_lgbt.width)
+  {
+   if(bitcount%8==0)
+   {
+    c=fgetc(fp);
+    if(feof(fp))
+    {
+     printf("End of file reached.\n");
+    }
+      
+   }
+   
+   bits=c >> (8-new_lgbt.bpp);
+   c<<=new_lgbt.bpp;
+   c&=255;
+   bitcount+=new_lgbt.bpp;
+
+   /*bits^=1;*/
+
+   /*convert gray into a 24 bit RGB equivalent.*/
+   pixel=0;
+   x2=0;
+   while(x2<24)
+   {
+    pixel<<=new_lgbt.bpp;
+    pixel|=bits;
+    x2+=new_lgbt.bpp;
+   }
+
+    new_lgbt.pixels[x+y*new_lgbt.width]=pixel;
+    x++;
+   }
+   y++;
+
+  }
+
+  
+ }
+
+ fclose(fp);
+ printf("Loaded from file: %s\n",filename);
+ return new_lgbt;
+}
+
+
+
+
+
+
+
+/*
+loads my lgbt format
+
+This one is the first that I wrote which does not use fread and instead uses my fgetint function. This one works and I will always keep it but I am planning to write a simpler function that uses fread to quickly read data into the integers.
+*/
+struct lgbt lgbt_load_1(const char *filename)
 {
  int x,y,pixel,x2,c,bitcount,bits;
  struct lgbt new_lgbt;
@@ -457,6 +561,8 @@ void lgbt_draw_text(const char *s,int cx,int cy,int scale)
  SDL_Rect rect_source,rect_dest;
  int char_width=main_lgbt.width/95; /*there are 95 characters in my font files*/
  int char_height=main_lgbt.height;
+
+ if(main_lgbt.pixels==NULL){/*printf("Error: Font is NULL!\n");*/return;}
 
  i=0;
  while(s[i]!=0)

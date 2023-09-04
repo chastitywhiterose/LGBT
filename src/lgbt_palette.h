@@ -195,6 +195,8 @@ void lgbt_draw_text_pal(const char *s,int cx,int cy,int scale)
  int char_width=main_lgbt.width/95; /*there are 95 characters in my font files*/
  int char_height=main_lgbt.height;
 
+ if(main_lgbt.pixels==NULL){/*printf("Error: Font is NULL!\n");*/return;}
+
  main_palette.index1=main_palette.index;
 
  i=0;
